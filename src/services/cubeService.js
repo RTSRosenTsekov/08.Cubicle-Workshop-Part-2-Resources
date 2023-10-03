@@ -19,8 +19,9 @@ const cubes = [
   },
 ];
 
-exports.getAll = (search, from, to) => {
-  let filterCubes = [...cubes];
+exports.getAll = async  (search, from, to) => {
+    let filterCubes =await Cube.find().lean();
+
   if (search) {
     filterCubes = filterCubes.filter((cube) =>
       cube.name.toLowerCase().includes(search.toLowerCase())
@@ -47,5 +48,6 @@ exports.create =  async (cubeData) => {
 };
 
 exports.getSingleCube = (id) => {
-  return cubes.find((cube) => cube.id === id);
+  return Cube.findById(id);
+  //return cubes.find((cube) => cube.id === id);
 };
