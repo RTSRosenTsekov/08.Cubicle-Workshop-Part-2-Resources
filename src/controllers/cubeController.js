@@ -26,7 +26,9 @@ router.get("/:cubeId/details", async (req, res) => {
     return;
   }
 
-  res.render("cubes/details", { ...cube });
+  const accessories =cube.accessories;
+  const hasAccessories =accessories=== undefined ? false : accessories.length > 0;//accessories?.length > 0
+  res.render("cubes/details", { ...cube , hasAccessories});
 });
 
 router.get("/:cubeId/attach-accessory", async (req, res) => {
@@ -35,7 +37,7 @@ router.get("/:cubeId/attach-accessory", async (req, res) => {
 
   const cube = await cubeService.getSingleCube(cubeId).lean();
   const accessories = await accessoryService.getAll().lean();
-  const hasAccessories = accessories.length > 0;
+  const hasAccessories = accessories.length > 0; // Нещо като viewData, TempData;
   res.render("accessory/attach", { cube , accessories,hasAccessories});
 });
 
