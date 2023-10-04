@@ -1,6 +1,6 @@
 const router = require("express").Router();
 const cubeService = require("../services/cubeService");
-const accessoryService = require("../services/accessoryService"); 
+const accessoryService = require("../services/accessoryService");
 
 router.get("/create", (req, res) => {
   res.render("cubes/create");
@@ -20,15 +20,16 @@ router.post("/create", async (req, res) => {
 router.get("/:cubeId/details", async (req, res) => {
   const { cubeId } = req.params;
   const cube = await cubeService.getSingleCube(cubeId).lean();
-  console.log(cube);
+
   if (!cube) {
     res.redirect("/404");
     return;
   }
 
-  const accessories =cube.accessories;
-  const hasAccessories =accessories=== undefined ? false : accessories.length > 0;//accessories?.length > 0
-  res.render("cubes/details", { ...cube , hasAccessories});
+  const accessories = cube.accessories;
+  const hasAccessories =
+    accessories === undefined ? false : accessories.length > 0; //accessories?.length > 0
+  res.render("cubes/details", { ...cube, hasAccessories });
 });
 
 router.get("/:cubeId/attach-accessory", async (req, res) => {
@@ -36,19 +37,23 @@ router.get("/:cubeId/attach-accessory", async (req, res) => {
   const { cubeId } = req.params;
 
   const cube = await cubeService.getSingleCube(cubeId).lean();
-  const accessories = await accessoryService.getAll().lean();
+  const accessoryIds =cube.accessories 
+  ? cube.accessories.map((a) => a._id)
+  :[];
+  
+  const accessories = await accessoryService.getWithoutOwned(accessoryIds).lean();
+
   const hasAccessories = accessories.length > 0; // Нещо като viewData, TempData;
-  res.render("accessory/attach", { cube , accessories,hasAccessories});
+  res.render("accessory/attach", { cube, accessories, hasAccessories });
 });
 
 router.post("/:cubeId/attach-accessory", async (req, res) => {
   const { cubeId } = req.params;
 
-  const {accessory: accessoryId} = req.body
-  await cubeService.attachAccessory(cubeId,accessoryId);
+  const { accessory: accessoryId } = req.body;
+  await cubeService.attachAccessory(cubeId, accessoryId);
 
   res.redirect(`/cubes/${cubeId}/details`);
 });
-
 
 module.exports = router;
